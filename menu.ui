@@ -1970,7 +1970,7 @@ QProgressBar::chunk {
       </font>
      </property>
      <property name="text">
-      <string>Qt123</string>
+      <string/>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

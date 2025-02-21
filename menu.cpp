@@ -5,6 +5,8 @@
 #include "dlabel.h"
 #include "QTcpSocket"
 
+#include <qfontdatabase.h>
+#include <qmessagebox.h>
 #include <qpropertyanimation.h>
 typedef QPropertyAnimation ani;
 QString sty[10]={
@@ -92,6 +94,7 @@ QByteArray send(QString head,QString content){
     return hd.toUtf8();
 }
 void Menu::dealCard(){
+
     QTimer *timer=new QTimer();
     int startPlayer=0;
     connect(timer,&QTimer::timeout,this,[=]() mutable{
@@ -104,6 +107,9 @@ void Menu::dealCard(){
         }
         if(!all_full){
             while(1){
+                if(gameCard.size()==0){
+                    break;
+                }
                 if(handCard[startPlayer].size()<max_Card){
                     gameCard.back()->raise();
                     handCard[startPlayer].push_back(gameCard.back());
@@ -232,6 +238,7 @@ void Menu::playerStart(){
     ui->finishButton->setEnabled(me==cur_player);
 
     if(me==cur_player){
+        ui->title_2->raise();
         fadeLabel(ui->title_2,500,1);
         QTimer::singleShot(900,[=](){
             fadeLabel(ui->title_2,400,0);
@@ -243,8 +250,10 @@ Menu::Menu(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Menu)
 {
+    QFontDatabase::addApplicationFont(QCoreApplication::applicationDirPath()+"/font.ttf");
+    QFontDatabase::addApplicationFont(QCoreApplication::applicationDirPath()+"/AGENCYB.TTF");
+    QFontDatabase::addApplicationFont(QCoreApplication::applicationDirPath()+"/AGENCYR.TTF");
     ui->setupUi(this);
-
     init();
 
 
@@ -510,6 +519,10 @@ void Menu::on_sortButton_clicked()
 
 void Menu::on_connect_clicked()
 {
+    if(ui->name->text()==""){
+        QMessageBox::information(this,"","名字不能为空");
+        return;
+    }
     ui->table->lower();
     connect_server(ui->name->text(),ui->ip->text(),ui->room->text());
 }
