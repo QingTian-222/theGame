@@ -25,20 +25,15 @@ public:
 
 
 
-
-
-private:
+protected:
     void paintEvent(QPaintEvent* event) override {
-
         QLabel::paintEvent(event); // 保留 QLabel 的默认绘制行为
-
-        if(this->text()!="0" && this->text()!="100" && this->text()!="?"){
+        if(this->text()!="0" && this->text()!="100" && this->text()!="?" && this->text().size()<3){
             QPainter painter(this);
             QFont font("Agency FB", 18);
             font.setBold(true);
             painter.setFont(font);
             painter.setPen(Qt::black);
-
             painter.drawText((this->text().size()==1?8:5), 25, this->text());
             painter.drawText(width() - (this->text().size()==1?15:25), height() - 6, this->text()); // 右下角
         }
@@ -47,7 +42,7 @@ private:
     void mousePressEvent(QMouseEvent* event) override {
         if(dragable){
             if (event->button() == Qt::LeftButton) {
-                //this->raise();
+
                 offset = event->position().toPoint();
                 dragging = true;
             }

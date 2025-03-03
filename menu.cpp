@@ -27,7 +27,7 @@ QString ft[2]={
     "font: 500 75pt \"Ancient\";"
 };
 QTcpSocket* socket;
-QVector<DLabel*> cards(200);
+QVector<DLabel*> cards(200),counts(200);
 QVector<DLabel*> handCard[10];
 QVector<QGroupBox*> gps;
 QVector<QLabel*> nms,bgs;
@@ -39,7 +39,6 @@ int seed;
 
 QVector<DLabel*> gameCard;//摸牌区
 void turnOn(DLabel* label){//翻开
-    if(label->isOpen) return;
     label->isOpen=true;
     int id=label->id;
     label->setStyleSheet(sty[(id-1)/10]+ft[id>=10]);
@@ -84,6 +83,23 @@ void openCard(DLabel *label,bool isOn){//翻牌动画
     QTimer::singleShot(200,[=](){
         if(isOn) turnOn(label);
         else turnOff(label);
+        ma(label,startRect,200,QEasingCurve::OutBack);
+    });
+}
+void openMiniCard(DLabel *label){//翻牌动画
+    if(label->isOpen) return;
+
+    label->isOpen=1;
+    int wid=label->width();
+    int aimw=0,aimx=label->x()+wid/2;
+    QRect startRect=label->geometry();
+    QRect aimRect={aimx,label->y(),aimw,label->height()};
+    ma(label,aimRect,200,QEasingCurve::InBack);
+    QTimer::singleShot(200,[=](){
+        int id=label->id;
+        label->setText(" "+QString::number(id)+" ");
+        label->setStyleSheet(sty[(id-1)/10]+"font: 500 "+QString::number(id<10?40:35)+"pt \"Ancient\";");
+
         ma(label,startRect,200,QEasingCurve::OutBack);
     });
 }
@@ -171,10 +187,14 @@ void Menu::modifyPlayer(int player){
     for(auto i:handCard[player]) ma(i,loc[player],300);
 
 }
+
 void Menu::init(){
     ui->finishButton->setVisible(false);
     ui->sortButton->setVisible(false);
     ui->startgame->setVisible(false);
+    ui->title_2->setVisible(false);
+    ui->viewer->setVisible(false);
+    installEventFilter(this);
     gps.append(ui->playergroup);gps.append(ui->playergroup_2);
     gps.append(ui->playergroup_3);gps.append(ui->playergroup_4);
     nms.append(ui->playername);nms.append(ui->playername2);
@@ -186,16 +206,45 @@ void Menu::init(){
     ui->roomtitle->setVisible(false);
     cur_player=0;
     for(int i=2;i<=99;i++){
-        DLabel* label=new DLabel(this);
+        DLabel* label=new DLabel(ui->centralwidget);
         label->id=i;
-        label->setGeometry(60,360,121,161);
+        label->setGeometry(80,360,121,161);
         label->installEventFilter(this);
         label->lower();
         label->setVisible(true);
         turnOff(label);
         cards[i]=label;
-
     }
+
+    for(int i=1;i<=10;i++){
+        for(int j=1;j<=10;j++){
+            DLabel* label = new DLabel(ui->viewer);
+
+            int padw=480;//左间隔
+            int padh=10;
+            int padww=5;//横排缝隙
+            int padhh=8;
+            int w=(this->width()-padw*2-9*padww)/10;
+            int h=(this->height()-padh*2-9*padhh)/10;
+
+            int x=padw+(w+padww)*(i-1);
+            int y=padh+(h+padhh)*(j-1);
+            label->setGeometry(x,y,w,h);
+            int tt=(j-1)*10+i;
+            label->id=tt;
+            label->setText("?");
+            if(tt==1){
+                label->setText(" "+QString::number(tt)+" ");
+                label->setStyleSheet(ui->up_1->styleSheet()+"color:rgb(255,255,255);font: 500 40pt \"Ancient\";");
+            }else if(tt==100){
+                label->setText(" "+QString::number(tt)+" ");
+                label->setStyleSheet(ui->dw_1->styleSheet()+"color:rgb(255,255,255);font: 500 30pt \"Ancient\";");
+            }else label->setStyleSheet(bk+"color:rgb(255,255,255);font: 500 40pt \"Ancient\";");
+            counts[tt]=label;
+        }
+    }
+
+
     ui->bg->raise();
     ui->group->raise();
     ui->title->raise();
@@ -209,16 +258,21 @@ void Menu::setup(){
         if(cards[i]->isOpen){
             openCard(cards[i],0);
         }
-
+        cards[i]->dragable=false;
+        cards[i]->inHand=true;
+        cards[i]->used=false;
+        counts[i]->used=0;
+        counts[i]->setStyleSheet(bk+"color:rgb(255,255,255);font: 500 40pt \"Ancient\";border:2px solid rgb(80,80,80);");
+        counts[i]->setText("?");
     }
     QTimer::singleShot(400,[=](){
-        ui->up_3->setVisible(false);
         for(int i=2;i<=99;i++){
             cards[i]->dragable=false;
-            ma(cards[i],QRect(60,360,121,161),200);
+            ma(cards[i],QRect(80,360,121,161),200);
 
         }
         //随机化
+        for(int i=0;i<player_num;i++) handCard[i].clear();
         gameCard.clear();
         for(int i=2;i<=99;i++) gameCard.append(cards[i]);
 
@@ -238,8 +292,9 @@ void Menu::playerStart(){
     ui->finishButton->setEnabled(me==cur_player);
 
     if(me==cur_player){
-        ui->title_2->raise();
+
         fadeLabel(ui->title_2,500,1);
+        ui->title_2->raise();
         QTimer::singleShot(900,[=](){
             fadeLabel(ui->title_2,400,0);
         });
@@ -323,6 +378,7 @@ void Menu::releaseFun(int id,QPoint loc){
         }
     }
     ma(cards[id],{loc.x(),loc.y(),121,161},300);
+    counts[id]->used=1;
 }
 void Menu::release(int id,QPointF p,QPoint loc){
     if(cur_player==me){
@@ -392,24 +448,58 @@ void Menu::mousemove(int id,QPointF p){
     }
 
 }
-bool Menu::eventFilter(QObject *obj, QEvent *event){
-    DLabel* label=qobject_cast<DLabel*>(obj);
-    if (event->type() == QEvent::MouseButtonPress) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-        if (mouseEvent->buttons() == Qt::LeftButton){
-            click(label->id);
+bool Menu::eventFilter(QObject *obj, QEvent *event) {
+    // 处理Tab键按下事件
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == 16777249) {
+            ui->viewer->raise();
+            ui->viewer->setVisible(true);
+            fadeLabel(ui->viewer,100,1);
+            QTimer::singleShot(100,[=](){
+                for(int i=2;i<=99;i++){
+                    if(cards[i]->used) openMiniCard(counts[i]);
+                }
+            });
+
+            return true; // 阻止事件继续传播
         }
-    }else if (event->type() == QEvent::Enter) {
-        move(label->id);
-    } else if (event->type() == QEvent::Leave) {
-        leave(label->id);
-    }else if(event->type() == QEvent::MouseButtonRelease) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-        release(label->id,mouseEvent->scenePosition(),label->pos());
-    }else if(event->type() == QEvent::MouseMove){
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-        mousemove(label->id,mouseEvent->scenePosition());
     }
+    // 处理Tab键释放事件
+    else if (event->type() == QEvent::KeyRelease) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == 16777249) {
+            ui->viewer->setVisible(false);
+            fadeLabel(ui->viewer,100,0);
+            return true; // 阻止事件继续传播
+        }
+    }
+
+    // 处理DLabel相关事件
+    DLabel* label=qobject_cast<DLabel*>(obj);
+    if(label){
+
+        if (event->type() == QEvent::MouseButtonPress) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+            if (mouseEvent->buttons() == Qt::LeftButton){
+                click(label->id);
+            }
+        }else if (event->type() == QEvent::Enter) {
+            move(label->id);
+        } else if (event->type() == QEvent::Leave) {
+            leave(label->id);
+        }else if(event->type() == QEvent::MouseButtonRelease) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+            release(label->id,mouseEvent->scenePosition(),label->pos());
+        }else if(event->type() == QEvent::MouseMove){
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+            mousemove(label->id,mouseEvent->scenePosition());
+        }
+
+        return QObject::eventFilter(obj, event);
+    }
+
+    // 其他未处理的事件交给基类处理
     return QObject::eventFilter(obj, event);
 }
 void Menu::finish(){
@@ -445,7 +535,7 @@ void Menu::connect_server(QString name,QString ip,QString room){
     });
     connect(socket,&QTcpSocket::readyRead,this,[=](){
         buffer.append(socket->readAll());
-        qDebug()<<"!!!"<<buffer;
+        qDebug()<<"receive:"<<buffer;
         while(1){
             if(buffer.size()<3) return;
             bool ok=false;
@@ -495,6 +585,8 @@ void Menu::connect_server(QString name,QString ip,QString room){
                 releaseFun(strs[0].toInt(),{strs[1].toInt(),strs[2].toInt()});
             }else if(category=="DEF"){
                 finish();
+            }else if(category=="RST"){
+                setup();
             }
 
         }
