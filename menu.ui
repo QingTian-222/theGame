@@ -2014,7 +2014,7 @@ QProgressBar::chunk {
       </font>
      </property>
      <property name="text">
-      <string>192.168.10.224</string>
+      <string>192.168.10.224:8080</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -2515,7 +2515,7 @@ color: rgba(183, 0, 255, 155);</string>
      </property>
     </widget>
    </widget>
-   <zorder>group</zorder>
+   <zorder>viewer</zorder>
    <zorder>bg</zorder>
    <zorder>table</zorder>
    <zorder>up_1</zorder>
@@ -2541,7 +2541,7 @@ color: rgba(183, 0, 255, 155);</string>
    <zorder>roomtitle</zorder>
    <zorder>startgame</zorder>
    <zorder>title_2</zorder>
-   <zorder>viewer</zorder>
+   <zorder>group</zorder>
   </widget>
  </widget>
  <customwidgets>

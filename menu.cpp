@@ -264,6 +264,7 @@ void Menu::setup(){
         counts[i]->used=0;
         counts[i]->setStyleSheet(bk+"color:rgb(255,255,255);font: 500 40pt \"Ancient\";border:2px solid rgb(80,80,80);");
         counts[i]->setText("?");
+        counts[i]->isOpen=false;
     }
     QTimer::singleShot(400,[=](){
         for(int i=2;i<=99;i++){
@@ -517,8 +518,9 @@ void Menu::finish(){
 QByteArray buffer;
 void Menu::connect_server(QString name,QString ip,QString room){
     socket = new QTcpSocket(this);
-    int port=8080;
-    socket->connectToHost(ip,port);
+    auto getIp=ip.split(":");
+    if(getIp.size()!=2) return;
+    socket->connectToHost(getIp[0],getIp[1].toInt());
     connect(socket,&QTcpSocket::connected,this,[=](){//连接成功
         ui->roomtitle->setText("Room : "+ui->room->text());
         ui->connect->setEnabled(false);
