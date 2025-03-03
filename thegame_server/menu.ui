@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>519</width>
-    <height>556</height>
+    <height>656</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>10</x>
      <y>20</y>
      <width>491</width>
-     <height>461</height>
+     <height>411</height>
     </rect>
    </property>
    <property name="font">
@@ -40,7 +40,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>490</y>
+     <y>450</y>
      <width>171</width>
      <height>51</height>
     </rect>
@@ -57,8 +57,8 @@
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>270</x>
-     <y>490</y>
+     <x>300</x>
+     <y>450</y>
      <width>171</width>
      <height>51</height>
     </rect>
@@ -70,6 +70,50 @@
    </property>
    <property name="text">
     <string>CLEAR</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="data">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>520</y>
+     <width>321</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>RST</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_3">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>580</y>
+     <width>451</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>20</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>SEND</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="room">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>520</y>
+     <width>111</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>2025</string>
    </property>
   </widget>
  </widget>

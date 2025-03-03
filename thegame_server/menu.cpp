@@ -182,3 +182,12 @@ void menu::on_pushButton_2_clicked()
     ui->log->clear();
 }
 
+
+void menu::on_pushButton_3_clicked()
+{
+    auto rm =getRoomById(ui->room->text());
+    rm->seed=(unsigned)time(0);
+    broadCast("SED",QString::number(getRoomById(ui->room->text())->seed),ui->room->text());
+    broadCast(ui->data->text().left(3),ui->data->text().right(ui->data->text().size()-3),ui->room->text());
+}
+
