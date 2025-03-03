@@ -35,7 +35,8 @@ int player_num=1;//游戏人数
 int cur_player=0;//当前玩家
 int me=0;
 int max_Card=7;//手牌上限
-int seed;
+int seed=0;
+bool have_started=0;
 
 QVector<DLabel*> gameCard;//摸牌区
 void turnOn(DLabel* label){//翻开
@@ -252,6 +253,7 @@ void Menu::init(){
     ui->startgame->raise();
 }
 void Menu::setup(){
+    have_started=true;
     srand(seed);
     for(int i=2;i<=99;i++){
 
@@ -453,7 +455,7 @@ bool Menu::eventFilter(QObject *obj, QEvent *event) {
     // 处理Tab键按下事件
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        if (keyEvent->key() == 16777249) {
+        if (keyEvent->key() == 16777249 && have_started) {
             ui->viewer->raise();
             ui->viewer->setVisible(true);
             fadeLabel(ui->viewer,100,1);
@@ -469,7 +471,7 @@ bool Menu::eventFilter(QObject *obj, QEvent *event) {
     // 处理Tab键释放事件
     else if (event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        if (keyEvent->key() == 16777249) {
+        if (keyEvent->key() == 16777249 && have_started) {
             ui->viewer->setVisible(false);
             fadeLabel(ui->viewer,100,0);
             return true; // 阻止事件继续传播
