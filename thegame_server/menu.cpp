@@ -87,7 +87,7 @@ void menu::on_pushButton_clicked()
 {
     server=new QTcpServer(this);
 
-    server->listen(QHostAddress::Any,8080);
+    server->listen(QHostAddress::Any,ui->data_2->text().toInt());
     ui->pushButton->setDisabled(true);
     ui->pushButton->setText("LISTENING...");
 

@@ -19,7 +19,7 @@
      <x>10</x>
      <y>20</y>
      <width>491</width>
-     <height>411</height>
+     <height>361</height>
     </rect>
    </property>
    <property name="font">
@@ -114,6 +114,22 @@
    </property>
    <property name="text">
     <string>2025</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="data_2">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>390</y>
+     <width>451</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>8080</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
  </widget>
